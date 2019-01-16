@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>DLB后台管理</title>
+    
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <link rel="stylesheet" href="layui/css/modules/layer/default/layer.css" />
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <script type="text/javascript" src="js/vue-2.5.16.js"></script>
+    <script src="js/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="js/axios-0.18.0.min.js"></script>
+    <script type="application/javascript" src="js/host.js"></script>
+    <script src="js/layer-v2.1/layer/layer.js"></script>
+    
+    <script type="text/javascript">
+        var is_staff = localStorage.is_staff;
+        var token = localStorage.token;
+        if (!token) {
+            location.href = '/index.html?next=/admin1.html';
+        }else {
+            if (is_staff == 'false'){
+                location.href = 'member.html?next=/admin1.html';
+            }
+        }
+    </script>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin" id="app">
+    <div class="layui-header">
+        <div class="layui-logo">DLB会员查询系统</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    管理员
+                </a>
+            </li>
+            <li class="layui-nav-item"><a @click="logout">退出</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">总投资列表</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="admin1.html" class="active">会员分布情况</a></dd>
+                        <dd><a href="admin2.html">投资ETH情况</a></dd>
+                        <dd><a href="admin3.html">奖金情况</a></dd>
+                        <dd><a href="admin4.html">会员列表</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item"><a href="admin5.html">总发放列表</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div class="layui-collapse" lay-accordion="">
+            <div class="layui-colla-item">
+                <h2 class="layui-colla-title">城市节点</h2>
+                <div class="layui-colla-content layui-show">
+                    <span>城市节点:[[ city_num ]]人</span>
+                </div>
+            </div>
+            <div class="layui-colla-item">
+                <h2 class="layui-colla-title">VIP节点</h2>
+                <div class="layui-colla-content layui-show">
+                    <span>VIP节点:[[ vip_num ]]人</span>
+                </div>
+            </div>
+            <div class="layui-colla-item">
+                <h2 class="layui-colla-title">会员节点</h2>
+                <div class="layui-colla-content layui-show">
+                    <span>会员节点:[[ member_num ]]人</span>
+                </div>
+            </div>
+            <div class="layui-colla-item">
+                <h2 class="layui-colla-title">粉丝节点</h2>
+                <div class="layui-colla-content layui-show">
+                    <span>粉丝节点:[[ fans_num ]]人</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script src="layui/layui.js"></script>
+<script>
+    var vm = new Vue({
+        el: '#app',
+        delimiters: ['[[', ']]'], // 修改vue模板符号，防止与django冲突
+        data: {
+            host: host,
+            token: localStorage.token,
+            city_num: '',
+            vip_num: '',
+            member_num: '',
+            fans_num: '',
+        },
+        mounted: function () {
+            // 判断用户的登录状态
+            if (this.token) {
+                axios.get(this.host + '/user/', {
+                    // 向后端传递JWT token的方法
+                    headers: {
+                    'Authorization': this.token
+                    },
+                    responseType: 'json',
+                })
+                    .then(response => {
+                        // 加载用户数据
+                        this.city_num = response.data.city_num;
+                        this.vip_num = response.data.vip_num;
+                        this.member_num = response.data.member_num;
+                        this.fans_num = response.data.fans_num;
+                        if(response.data.msg == 'token失效'){
+                            localStorage.clear();
+                            location.reload()
+                        }
+                    })
+                    .catch(error => {
+
+                    });
+            }
+        },
+        methods: {
+            // 退出
+            logout: function () {
+                sessionStorage.clear();
+                localStorage.clear();
+                location.href = 'index.html';
+            },
+        }
+    });
+</script>
+<script type="text/javascript">
+    //JavaScript代码区域
+    layui.use('element', function () {
+        var element = layui.element;
+
+    });
+</script>
+</body>
+</html>

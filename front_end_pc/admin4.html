@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>DLB后台管理</title>
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <script type="text/javascript" src="js/vue-2.5.16.js"></script>
+    <script type="text/javascript" src="js/axios-0.18.0.min.js"></script>
+    <script src="js/jquery-1.12.4.min.js"></script>
+    <script type="application/javascript" src="js/host.js"></script>
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="stylesheet" href="layui/css/modules/layer/default/layer.css" />
+    <script src="js/layer-v2.1/layer/layer.js"></script>
+    
+    <script>
+        var is_staff = localStorage.is_staff;
+        var token = localStorage.token;
+        if (!token) {
+            location.href = '/index.html?next=/admin4.html';
+        }else {
+            if (is_staff == 'false'){
+                location.href = '/member.html?next=/admin4.html';
+            }
+        }
+    </script>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header" id="app">
+        <div class="layui-logo">DLB会员查询系统</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    管理员
+                </a>
+            </li>
+            <li class="layui-nav-item"><a @click="logout">退出</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">总投资列表</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="admin1.html">会员分布情况</a></dd>
+                        <dd><a href="admin2.html">投资ETH情况</a></dd>
+                        <dd><a href="admin3.html">奖金情况</a></dd>
+                        <dd><a href="admin4.html" class="active">会员列表</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item"><a href="/admin5.html">总发放列表</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <div class="demoTable">
+            搜索：
+            <div class="layui-inline">
+                <input class="layui-input" name="keyWord" id="keyWord" autocomplete="off">
+            </div>
+            <span class="input-group-btn">
+                <select name="keyType" id="key_type" class="layui-btn">
+                    <option value="username" selected="selected">用户名</option>
+                    <option value="mobile">手机号</option>
+                    <option value="level">用户等级</option>
+                </select>
+            </span>
+            <button class="layui-btn" data-type="reload">搜索</button>
+
+        </div>
+
+
+        <table class="layui-hide" id="test"></table>
+
+        <script src="layui/layui.js" charset="utf-8"></script>
+        <!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+
+        <script>
+            layui.use('table', function () {
+                var table = layui.table;
+                var token = localStorage.token;
+                //渲染
+                table.render({
+                    elem: '#test'  //绑定table表格
+                    , headers: {'Authorization': token,}
+                    , toolbar: true
+                    , contentType: 'application/json'
+                    , cellMinWidth: 80
+                    , url: host + '/member/' //后台springmvc接收路径
+                    , page: true    //true表示分页
+                    , limit: 10
+                    , id: 'contenttable'
+                    , cols: [[
+                        {field: 'username', title: '用户名', align: 'center'} //width 支持：数字、百分比和不填写。你还可以通过 minWidth 参数局部定义当前单元格的最小宽度，layui 2.2.1 新增
+                        , {field: 'mobile', title: '手机号', align: 'center'}
+                        , {field: 'level', title: '用户等级', align: 'center'}
+                        , {field: 'invite_num', title: '邀请人数', align: 'center'}
+                        , {field: 'eth', title: '投资ETH数量', align: 'center'} //单元格内容水平居中
+                        , {field: 'dlb', title: 'DLB数量', align: 'center'} //单元格内容水平居中
+                        , {field: 'bonus', title: '奖金', align: 'center'}
+                    ]]
+                    , done: function (res, count) {
+                        if(res.msg == 'token失效'){
+                            localStorage.clear();
+                            location.reload();
+                        }
+
+                    }
+                });
+
+                var $ = layui.jquery, active = {
+                     reload: function () {
+                        var keyWord = $("#keyWord").val();
+                        var keyType = $("#key_type option:selected").val();
+                        if(keyWord==''){
+                            layer.msg('请输入正确的值', {time:2000})
+                        }else {
+                            table.reload('contenttable', {
+                                headers: {'Authorization': token,},
+                                contentType: 'application/json',
+                                method: 'post',
+                                where: {keyWord: keyWord, keyType: keyType},
+                                url: host + '/search/'
+                            });
+                        }
+                    }
+                };
+                $('.layui-btn').on('click', function () {
+                    var type = $(this).data('type');
+                    active[type] ? active[type].call(this) : '';
+                });
+
+            });
+
+        </script>
+    </div>
+</div>
+<script>
+    var vm = new Vue({
+        el: '#app',
+        methods: {
+            // 退出
+            logout: function () {
+                sessionStorage.clear();
+                localStorage.clear();
+                location.href = '/index.html';
+            },
+        }
+    });
+</script>
+<script>
+    //JavaScript代码区域
+    layui.use('element', function () {
+        var element = layui.element;
+
+    });
+</script>
+</body>
+</html>

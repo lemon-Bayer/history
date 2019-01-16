@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>DLB会员注册</title>
+	<link rel="stylesheet" type="text/css" href="css/reset.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<script type="text/javascript" src="js/vue-2.5.16.js"></script>
+	<script type="text/javascript" src="js/axios-0.18.0.min.js"></script>
+	<script src="js/jquery-1.12.4.min.js"></script>
+	<script type="application/javascript" src="js/host.js"></script>
+	<script type="text/javascript" charset="utf-8" src="//g.alicdn.com/sd/ncpc/nc.js?t=2015052012"></script>
+	<link rel="shortcut icon" href="images/favicon.ico">
+	<link rel="stylesheet" href="layui/css/modules/layer/default/layer.css" />
+    <script src="js/layer-v2.1/layer/layer.js"></script>
+	
+	<style>
+		.nc_scale{height:40px !important;}
+		.nc-container .nc_scale span{height:38px;line-height:38px;}
+        body,html{background:url("images/banner.jpg") 0 0 no-repeat;background-size: 100% 100%;}
+	</style>
+</head>
+<body>
+	<div class="register_con">
+		<div class="r_con fr">
+			<div class="reg_title clearfix">
+				<h1>欢迎注册</h1>
+				<a href="index.html">登录<i></i></a>
+			</div>
+			<div class="reg_form clearfix" id="app" v-cloak>
+				<form @submit.prevent="on_submit">
+				<ul>
+                    <li>
+                        <label>用户名:</label>
+                        <input type="text" v-model="username" @blur="check_username" name="user_name" id="user_name">
+                        <span v-show="error_name" class="error_tip">{{ error_name_message }}</span>
+                    </li>
+					<li>
+						<label>手机号:</label>
+						<input type="text" name="phone" v-model="mobile" @blur="check_phone"  id="phone">
+						<span v-show="error_phone" class="error_tip">{{ error_phone_message }}</span>
+					</li>
+					<li>
+						<label>滑块验证:</label>
+						<div id="your-dom-id" class="nc-container">
+							
+						</div>
+					</li>
+					<li>
+						<label>短信验证码:</label>
+						<input type="text" v-model="sms_code" @blur="check_sms_code" name="msg_code" id="msg_code" class="msg_input" disabled="disabled">
+                        <a @click="send_sms_code" class="get_msg_code" style="cursor: pointer">{{ sms_code_tip }}</a>
+                        <span v-show="error_sms_code" class="error_tip">{{ error_sms_code_message }}</span>
+					</li>
+					<li>
+						<label>邀请码:</label>
+						<input type="text" name="invite_num_son" v-model="invite_num_son" @blur="check_invite_num"  id="invite_num_son" disabled="disabled">
+						<span v-show="error_invite_num" class="error_tip">{{ error_invite_num_message }}</span>
+					</li>
+					<li>
+						<label>钱包地址:</label>
+						<input type="text" name="purse_addr" v-model="purse_addr" @blur="check_purse_addr"  id="purse_addr" disabled="disabled">
+						<span v-show="error_purse_addr" class="error_tip">{{ error_purse_addr_message }}</span>
+					</li>
+					<li class="reg_sub">
+						<input type="submit" value="注 册" name="">
+					</li>
+				</ul>				
+				</form>
+			</div>
+
+		</div>
+
+	</div>
+	<script type="text/javascript" src="js/register.js"></script>
+	<script type="text/javascript">
+        var nc_token = ["CF_APP_1", (new Date()).getTime(), Math.random()].join(':');
+        var NC_Opt =
+        {
+            host: 'http://127.0.0.1:8000',
+            renderTo: "#your-dom-id",
+            appkey: "CF_APP_1",
+            scene: "register",
+            token: nc_token,
+            customWidth: 290,
+            trans:{"key1":"code01"},
+            elementID: ["usernameID"],
+            is_Opt: 0,
+            language: "cn",
+            isEnabled: true,
+            timeout: 3000,
+            times:5,
+            apimap: {},
+            callback: function (data) {
+                window.console && console.log(nc_token)
+                window.console && console.log(data.csessionid)
+                window.console && console.log(data.sig)
+                $("#msg_code").attr("disabled",false);
+                $("#invite_num_son").attr("disabled",false);
+                $("#purse_addr").attr("disabled",false);
+                $("#allow").attr("disabled",false);
+
+            }
+        }
+        var nc = new noCaptcha(NC_Opt)
+        nc.upLang('cn', {
+            _startTEXT: "请按住滑块，拖动到最右边",
+            _yesTEXT: "验证通过",
+            _error300: "哎呀，出错了,点击<a href=\"javascript:__nc.reset()\">刷新</a>再来一次",
+            _errorNetwork: "网络不给力,请<a href=\"javascript:__nc.reset()\">点击刷新</a>",
+        })
+        </script>
+</body>
+</html>
